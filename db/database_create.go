@@ -3,6 +3,8 @@ package main
 import (
 	"database/sql"
 	"log"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
 func dbConn() (db *sql.DB) {
@@ -21,7 +23,10 @@ func dbConn() (db *sql.DB) {
 }
 
 func main() {
-	createTeachersTable()
+	//createTeachersTable()
+	//createEducationTable()
+	//createAcademicJobsTable()
+	createAdministrativeDuties()
 }
 
 func createTeachersTable() {
@@ -39,6 +44,74 @@ func createTeachersTable() {
     );`
 
 	// Executes the SQL query in our database. Check err to ensure there was no error.
+
+	if _, err := db.Exec(query); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func createEducationTable() {
+	db := dbConn()
+	query := `CREATE TABLE nkucrawler.educaton  (
+		teacher_id int NOT NULL,
+		type char(255) NULL,
+		university char(255) NULL,
+		faculty char(255) NULL,
+		department char(255) NULL,
+		year char(255) NULL,
+		thesis char(255) NULL,
+		CONSTRAINT teacher_id FOREIGN KEY (teacher_id) REFERENCES nkucrawler.teachers (id)
+	  );`
+
+	if _, err := db.Exec(query); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func createAcademicJobsTable() {
+	db := dbConn()
+
+	query := `CREATE TABLE academic_jobs (
+	  id int NOT NULL AUTO_INCREMENT,
+	  teacherId int DEFAULT NULL,
+	  title char(255) COLLATE utf8_turkish_ci DEFAULT NULL,
+	  school varchar(255) COLLATE utf8_turkish_ci DEFAULT NULL,
+	  year varchar(255) COLLATE utf8_turkish_ci DEFAULT NULL,
+	  PRIMARY KEY (id)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci;`
+
+	if _, err := db.Exec(query); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func createAdministrativeDuties() {
+	db := dbConn()
+
+	query := `CREATE TABLE administrative_duties (
+	  id int NOT NULL AUTO_INCREMENT,
+	  teacherId int DEFAULT NULL,
+	  title char(255) COLLATE utf8_turkish_ci DEFAULT NULL,
+	  school varchar(255) COLLATE utf8_turkish_ci DEFAULT NULL,
+	  year varchar(255) COLLATE utf8_turkish_ci DEFAULT NULL,
+	  PRIMARY KEY (id)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci;`
+
+	if _, err := db.Exec(query); err != nil {
+		log.Fatal(err)
+	}
+}
+func createGivenLessons() {
+	db := dbConn()
+
+	query := `CREATE TABLE administrative_duties (
+	  id int NOT NULL AUTO_INCREMENT,
+	  teacherId int DEFAULT NULL,
+	  title char(255) COLLATE utf8_turkish_ci DEFAULT NULL,
+	  school varchar(255) COLLATE utf8_turkish_ci DEFAULT NULL,
+	  year varchar(255) COLLATE utf8_turkish_ci DEFAULT NULL,
+	  PRIMARY KEY (id)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci;`
 
 	if _, err := db.Exec(query); err != nil {
 		log.Fatal(err)

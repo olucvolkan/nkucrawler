@@ -12,11 +12,28 @@ import (
 
 func main() {
 
-	htmlsDocument := makeRequest("http://erdincuzun.cv.nku.edu.tr/")
+	for i, s := range urlList() {
 
-	instutationInfos := getinsitutationInfos(htmlsDocument)
-	insertTeacherInfoDb(instutationInfos)
-	fmt.Println(instutationInfos)
+		htmlsDocument := makeRequest(s)
+		//instutationInfos := getinsitutationInfos(htmlsDocument)
+		//	insertTeacherInfoDb(instutationInfos)
+
+		primaryKey := i + 1
+		//academicJobs := academicJobs(htmlsDocument, primaryKey)
+		//fmt.Println(academicJobs)
+		insertAdministrativeDuties := administrativeDuties(htmlsDocument, primaryKey)
+		fmt.Println(insertAdministrativeDuties)
+
+	}
+}
+
+func urlList() []string {
+
+	urlList := []string{
+		"http://erdincuzun.cv.nku.edu.tr/",
+	}
+
+	return urlList
 }
 
 func dbConn() (db *sql.DB) {
@@ -97,4 +114,86 @@ func insertTeacherInfoDb(teacherInfoData []string) {
 
 	defer db.Close()
 
+}
+
+func academicJobs(document *goquery.Document, teacherID int) []string {
+	titles := []string{}
+	document.Find("#akademikgorevler > div > div.panel-body.table-responsive > table > tbody > tr ").Each(func(i int, s *goquery.Selection) {
+		title := s.Find("td:nth-child(1)").Text()
+		school := s.Find("td:nth-child(2)").Text()
+		year := s.Find("td:nth-child(3)").Text()
+
+		insertAcademicJobs(title, school, year, teacherID)
+	})
+	return titles
+}
+func insertAcademicJobs(title string, school string, year string, teacherID int) {
+	db := dbConn()
+
+	insertQuery, err := db.Prepare("INSERT INTO academic_jobs(title, school,year,teacherId) VALUES(?,?,?,?)")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	insertQuery.Exec(title, school, year, teacherID)
+
+	fmt.Println("ADDED academis jobs")
+
+	defer db.Close()
+	//#idarigorevler > div > div.panel-body.table-responsive > table > tbody > tr:nth-child(1)
+}
+
+func administrativeDuties(document *goquery.Document, teacherID int) bool {
+
+	document.Find("#idarigorevler > div > div.panel-body.table-responsive > table > tbody > tr").Each(func(i int, s *goquery.Selection) {
+		title := s.Find("td:nth-child(1)").Text()
+		school := s.Find("td:nth-child(2)").Text()
+		year := s.Find("td:nth-child(3)").Text()
+
+		insertAdministrativeDuties(title, school, year, teacherID)
+	})
+	return true
+}
+
+func insertAdministrativeDuties(title string, school string, year string, teacherID int) {
+	db := dbConn()
+
+	insertQuery, err := db.Prepare("INSERT INTO administrative_duties(title, school,year,teacherId) VALUES(?,?,?,?)")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	insertQuery.Exec(title, school, year, teacherID)
+
+	fmt.Println("ADDED adminstrative Duties")
+
+	defer db.Close()
+
+}
+
+func givenLessons(document *goquery.Document, teacherID int) bool {
+
+	document.Find("#dersler > div:nth-child(2) > div.panel-body.table-responsive > table > tbody > tr").Each(func(i int, s *goquery.Selection) {
+		year := s.Find("td:nth-child(1)").Text()
+		lessonName := s.Find("td:nth-child(2)").Text()
+		clock := s.Find("td:nth-child(3)").Text()
+
+		insertGivenLessons(year, lessonName, clock, teacherID)
+	})
+	return true
+}
+
+func insertGivenLessons(year string, lessonName string, clock string, teacherID int) {
+	db := dbConn()
+
+	insertQuery, err := db.Prepare("INSERT INTO given_lessons(title, school,year,teacherId) VALUES(?,?,?,?)")
+	if err != nil {
+		panic(err.Error())
+	}
+
+	insertQuery.Exec(year, lessonName, clock, teacherID)
+
+	fmt.Println("ADDED given lessons")
+
+	defer db.Close()
 }
