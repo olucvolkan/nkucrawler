@@ -26,7 +26,12 @@ func main() {
 	//createTeachersTable()
 	//createEducationTable()
 	//createAcademicJobsTable()
-	createAdministrativeDuties()
+	//createAdministrativeDuties()
+	//createGivenLessons()
+	//createLectures()
+	//createResearch()
+	//createProject()
+	createTeachInfo()
 }
 
 func createTeachersTable() {
@@ -104,12 +109,74 @@ func createAdministrativeDuties() {
 func createGivenLessons() {
 	db := dbConn()
 
-	query := `CREATE TABLE administrative_duties (
+	query := `CREATE TABLE given_lessons (
 	  id int NOT NULL AUTO_INCREMENT,
 	  teacherId int DEFAULT NULL,
-	  title char(255) COLLATE utf8_turkish_ci DEFAULT NULL,
-	  school varchar(255) COLLATE utf8_turkish_ci DEFAULT NULL,
-	  year varchar(255) COLLATE utf8_turkish_ci DEFAULT NULL,
+	  period char(255) COLLATE utf8_turkish_ci DEFAULT NULL,
+	  lessonName varchar(255) COLLATE utf8_turkish_ci DEFAULT NULL,
+	  time int DEFAULT NULL,
+	  PRIMARY KEY (id)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci;`
+
+	if _, err := db.Exec(query); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func createLectures() {
+	db := dbConn()
+
+	query := `CREATE TABLE lectures (
+	  id int NOT NULL AUTO_INCREMENT,
+	  teacherId int DEFAULT NULL,
+	  lessonName varchar(255) COLLATE utf8_turkish_ci DEFAULT NULL,
+	  PRIMARY KEY (id)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci;`
+
+	if _, err := db.Exec(query); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func createResearch() {
+	db := dbConn()
+
+	query := `CREATE TABLE research (
+	  id int NOT NULL AUTO_INCREMENT,
+	  teacherId int DEFAULT NULL,
+	  researchSubject varchar(255) COLLATE utf8_turkish_ci DEFAULT NULL,
+	  PRIMARY KEY (id)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci;`
+
+	if _, err := db.Exec(query); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func createProject() {
+	db := dbConn()
+
+	query := `CREATE TABLE project (
+	  id int NOT NULL AUTO_INCREMENT,
+	  teacherId int DEFAULT NULL,
+	  project varchar(255) COLLATE utf8_turkish_ci DEFAULT NULL,
+	  PRIMARY KEY (id)
+	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci;`
+
+	if _, err := db.Exec(query); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func createTeachInfo() {
+	db := dbConn()
+
+	query := `CREATE TABLE teach_info (
+	  id int NOT NULL AUTO_INCREMENT,
+	  teacherId int DEFAULT NULL,
+	  teachType varchar(255) COLLATE utf8_turkish_ci DEFAULT NULL,
+	  facultyType varchar(255) COLLATE utf8_turkish_ci DEFAULT NULL,
+	  facultyName varchar(255) COLLATE utf8_turkish_ci DEFAULT NULL,
 	  PRIMARY KEY (id)
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_turkish_ci;`
 
