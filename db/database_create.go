@@ -4,16 +4,18 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"os"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/subosito/gotenv"
 )
 
 func dbConn() (db *sql.DB) {
 
-	dbDriver := "mysql"
-	dbUser := "root"
-	dbPass := "root"
-	dbName := "nkucrawler_prod"
+	dbDriver := os.Getenv("DB_DRIVER")
+	dbUser := os.Getenv("DB_USER")
+	dbPass := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
 	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
 	if err != nil {
 		panic(err.Error())
@@ -24,7 +26,8 @@ func dbConn() (db *sql.DB) {
 }
 
 func main() {
-	createDatabase("nkucrawler_prod")
+	gotenv.Load()
+	createDatabase(os.Getenv("DB_NAME"))
 	createTeachersTable()
 	createEducationTable()
 	createAcademicJobsTable()
@@ -75,7 +78,7 @@ func createTeachersTable() {
 
 func createEducationTable() {
 	db := dbConn()
-	query := `CREATE TABLE nkucrawler.educaton  (
+	query := `CREATE TABLE nkucrawler.education  (
 		teacherId int NOT NULL,
 		type char(255) NULL,
 		university char(255) NULL,

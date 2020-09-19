@@ -4,13 +4,16 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/subosito/gotenv"
 )
 
 func main() {
+
 	urlListPageHTML := makeRequest("http://cmf.nku.edu.tr/PersonelListesi/0/s/9790/801")
 	urlList := urlList(urlListPageHTML)
 
@@ -56,10 +59,12 @@ func urlList(document *goquery.Document) []string {
 
 func dbConn() (db *sql.DB) {
 
-	dbDriver := "mysql"
-	dbUser := "root"
-	dbPass := "root"
-	dbName := "nkucrawler_prod"
+	gotenv.Load()
+
+	dbDriver := os.Getenv("DB_DRIVER")
+	dbUser := os.Getenv("DB_USER")
+	dbPass := os.Getenv("DB_PASSWORD")
+	dbName := os.Getenv("DB_NAME")
 	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
 	if err != nil {
 		panic(err.Error())
