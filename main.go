@@ -11,10 +11,12 @@ import (
 )
 
 func main() {
-	htmlDocuments := makeRequest("http://cmf.nku.edu.tr/PersonelListesi/0/s/9790/801")
-	urlList := urlList(htmlDocuments)
+	urlListPageHTML := makeRequest("http://cmf.nku.edu.tr/PersonelListesi/0/s/9790/801")
+	urlList := urlList(urlListPageHTML)
+
 	for i, s := range urlList {
-		htmlDocuments := makeRequest(s)
+		fmt.Println(s)
+		htmlDocuments := makeRequest("http://" + s)
 		instutationInfos := getinsitutationInfos(htmlDocuments)
 		insertTeacherInfoDb(instutationInfos)
 
@@ -47,10 +49,9 @@ func urlList(document *goquery.Document) []string {
 
 	document.Find("#icerik > div:nth-child(1) > div > b").Each(func(i int, s *goquery.Selection) {
 		siteName := s.Find("div > div.col-md-9.col-xs-8 > b > b > h6:nth-child(3) > a").Text()
-		urlList = append(urlList, siteName)
+		urlList = strings.Split(siteName, " ")
 	})
-
-	return urlList
+	return urlList[1:]
 }
 
 func dbConn() (db *sql.DB) {
@@ -69,6 +70,8 @@ func dbConn() (db *sql.DB) {
 }
 
 func makeRequest(url string) *goquery.Document {
+	fmt.Println(url)
+
 	resp, _ := http.Get(url)
 	// Convert HTML into goquery document
 	doc, _ := goquery.NewDocumentFromReader(resp.Body)
@@ -117,15 +120,13 @@ func insertTeacherInfoDb(teacherInfoData []string) {
 	phoneNumber := teacherInfoData[1]
 	mailAddress := teacherInfoData[2]
 	siteAddress := teacherInfoData[3]
-	faculty := teacherInfoData[4]
-	branchScience := teacherInfoData[5]
 
-	insertQuery, err := db.Prepare("INSERT INTO teachers(name, phone_number,mail,site,faculty,branch) VALUES(?,?,?,?,?,?)")
+	insertQuery, err := db.Prepare("INSERT INTO teachers(name, phone_number,mail,site) VALUES(?,?,?,?)")
 	if err != nil {
 		panic(err.Error())
 	}
 
-	insertQuery.Exec(teacherName, phoneNumber, mailAddress, siteAddress, faculty, branchScience)
+	insertQuery.Exec(teacherName, phoneNumber, mailAddress, siteAddress)
 
 	fmt.Println("ADDED: Name: " + teacherName + " | Mail: " + mailAddress)
 
