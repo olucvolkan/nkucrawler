@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -12,7 +13,7 @@ func dbConn() (db *sql.DB) {
 	dbDriver := "mysql"
 	dbUser := "root"
 	dbPass := "root"
-	dbName := "nkucrawler"
+	dbName := "nkucrawler_prod"
 	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
 	if err != nil {
 		panic(err.Error())
@@ -23,15 +24,32 @@ func dbConn() (db *sql.DB) {
 }
 
 func main() {
-	//createTeachersTable()
-	//createEducationTable()
-	//createAcademicJobsTable()
-	//createAdministrativeDuties()
-	//createGivenLessons()
-	//createLectures()
-	//createResearch()
-	//createProject()
+	createDatabase("nkucrawler_prod")
+	createTeachersTable()
+	createEducationTable()
+	createAcademicJobsTable()
+	createAdministrativeDuties()
+	createGivenLessons()
+	createLectures()
+	createResearch()
+	createProject()
 	createTeachInfo()
+}
+
+func createDatabase(dbName string) {
+	db, err := sql.Open("mysql", "root:root@tcp(127.0.0.1:3306)/")
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println("Database created successfully")
+	}
+	sql := "CREATE DATABASE " + dbName
+	_, err = db.Exec(sql)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println("Successfully created database..")
+	}
 }
 
 func createTeachersTable() {
@@ -58,14 +76,13 @@ func createTeachersTable() {
 func createEducationTable() {
 	db := dbConn()
 	query := `CREATE TABLE nkucrawler.educaton  (
-		teacher_id int NOT NULL,
+		teacherId int NOT NULL,
 		type char(255) NULL,
 		university char(255) NULL,
 		faculty char(255) NULL,
 		department char(255) NULL,
 		year char(255) NULL,
-		thesis char(255) NULL,
-		CONSTRAINT teacher_id FOREIGN KEY (teacher_id) REFERENCES nkucrawler.teachers (id)
+		thesis char(255) NULL
 	  );`
 
 	if _, err := db.Exec(query); err != nil {

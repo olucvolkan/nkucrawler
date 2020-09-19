@@ -11,40 +11,44 @@ import (
 )
 
 func main() {
-
-	for i, s := range urlList() {
-
+	htmlDocuments := makeRequest("http://cmf.nku.edu.tr/PersonelListesi/0/s/9790/801")
+	urlList := urlList(htmlDocuments)
+	for i, s := range urlList {
 		htmlDocuments := makeRequest(s)
-		//instutationInfos := getinsitutationInfos(htmlsDocument)
-		//	insertTeacherInfoDb(instutationInfos)
+		instutationInfos := getinsitutationInfos(htmlDocuments)
+		insertTeacherInfoDb(instutationInfos)
 
 		primaryKey := i + 1
-		//academicJobs := academicJobs(htmlsDocument, primaryKey)
-		//fmt.Println(academicJobs)
-		//	insertAdministrativeDuties := administrativeDuties(htmlsDocument, primaryKey)
-		//	fmt.Println(insertAdministrativeDuties)
+		academicJobs := academicJobs(htmlDocuments, primaryKey)
+		fmt.Println(academicJobs)
 
-		//givenLessons := givenLessons(htmlDocuments, primaryKey)
-		//fmt.Println(givenLessons)
+		insertAdministrativeDuties := administrativeDuties(htmlDocuments, primaryKey)
+		fmt.Println(insertAdministrativeDuties)
 
-		//lectures := lectures(htmlDocuments, primaryKey)
-		//fmt.Println(lectures)
+		givenLessons := givenLessons(htmlDocuments, primaryKey)
+		fmt.Println(givenLessons)
 
-		//		research := research(htmlDocuments, primaryKey)
-		//fmt.Println(research)
+		lectures := lectures(htmlDocuments, primaryKey)
+		fmt.Println(lectures)
 
-		//projects := projects(htmlDocuments, primaryKey)
+		research := research(htmlDocuments, primaryKey)
+		fmt.Println(research)
+
+		projects := projects(htmlDocuments, primaryKey)
+		fmt.Println(projects)
 
 		teachInfo := teachInfo(htmlDocuments, primaryKey)
 		fmt.Println(teachInfo)
 	}
 }
 
-func urlList() []string {
+func urlList(document *goquery.Document) []string {
+	urlList := []string{}
 
-	urlList := []string{
-		"http://erdincuzun.cv.nku.edu.tr/",
-	}
+	document.Find("#icerik > div:nth-child(1) > div > b").Each(func(i int, s *goquery.Selection) {
+		siteName := s.Find("div > div.col-md-9.col-xs-8 > b > b > h6:nth-child(3) > a").Text()
+		urlList = append(urlList, siteName)
+	})
 
 	return urlList
 }
@@ -54,7 +58,7 @@ func dbConn() (db *sql.DB) {
 	dbDriver := "mysql"
 	dbUser := "root"
 	dbPass := "root"
-	dbName := "nkucrawler"
+	dbName := "nkucrawler_prod"
 	db, err := sql.Open(dbDriver, dbUser+":"+dbPass+"@/"+dbName)
 	if err != nil {
 		panic(err.Error())
